@@ -104,3 +104,5 @@ TEMPLATE_DIRS = (
 
 MEDIA_ROOT = os.path.join(PROJECT_PATH, 'media')
 MEDIA_URL ='/media/'
+
+LOGIN_URL = '/rango/login/'

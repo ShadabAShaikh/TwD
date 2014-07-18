@@ -13,4 +13,6 @@ urlpatterns = patterns('',
         url(r'^logout/$',views.user_logout, name='logout'),
         url(r'^restricted/$',views.restricted, name='restricted'),
         url(r'^search/$',views.search,name='search'),
+        url(r'^category_list/$',views.category_list,name='category_list'),
+        url(r'^goto/$',views.track_url,name='track_url'),
         )

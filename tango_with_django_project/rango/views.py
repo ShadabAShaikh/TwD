@@ -33,13 +33,14 @@ def index(request):
         request.session['last_visit']=str(datetime.now())
         request.session['visits']=1
     return render_to_response('rango/index.html',context_dict,context)    
-    
 
+def get_category_list():
+    return Category.objects.order_by('-likes')[:5]
 
-    
-
-    # Render the response and return to the client.
-    return render_to_response('rango/index.html', context_dict, context)
+def category_list(request):
+    context=RequestContext(request)
+    category_list = get_category_list()
+    return render_to_response('rango/category_list.html', {'category_list':category_list}, context)
 
 def decode_url(category_name_url):
     return category_name_url.replace('_', ' ')
@@ -90,6 +91,7 @@ def add_page(request, category_name_url):
     if request.method == 'POST':
         form = PageForm(request.POST)
         if form.is_valid():
+
             page = form.save(commit=False)
             try:
                 cat = Category.objects.get(name=category_name)
@@ -98,6 +100,7 @@ def add_page(request, category_name_url):
             except Category.DoesNotExist:
                 return render_to_response('rango/add_category.html', {}, context)
             page.views = 0
+            page.pageid = len(page)+2
             page.save()
             
             return category(request, category_name_url)
@@ -162,12 +165,26 @@ def user_logout(request):
 def search(request):
     context = RequestContext(request)
     result_list = []
-
     if request.method == 'POST':
         query = request.POST['query'].strip()
-
         if query:
             # Run our Bing function to get the results list!
             result_list = run_query(query)
-
     return render_to_response('rango/search.html', {'result_list': result_list}, context)
+
+def track_url(request):
+    if request.method == 'GET':
+        if 'page_id' in request.GET:
+            page_id = request.GET['page_id']
+            try:
+                pg = Page.objects.get(pageid=page_id)
+                pg.views = pg.views + 1
+                pg.save()
+                return HttpResponseRedirect(pg.url)
+
+            except Page.DoesNotExist:
+                return HttpResponseRedirect('/rango/')
+                         
+                
+                
+    return
